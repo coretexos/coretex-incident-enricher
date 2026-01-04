@@ -327,22 +327,26 @@ Your pack doc already defines overlays and limits supported keys to `pools` and 
 
 Goal:
 
-* Ensure those 3 topics route to a dedicated pool that your workers heartbeat into.
+* Route each topic to its own dedicated pool so the scheduler targets the right worker.
 
 Example:
 
 ```yaml
 pools:
-  incident-enricher-default:
-    requires: ["network:egress", "llm", "slack:webhook"]
+  incident-enricher-fetch:
+    requires: ["network:egress"]
+  incident-enricher-summarize:
+    requires: ["llm"]
+  incident-enricher-post:
+    requires: ["slack:webhook"]
 
 topics:
-  job.incident-enricher.fetch: incident-enricher-default
-  job.incident-enricher.summarize: incident-enricher-default
-  job.incident-enricher.post: incident-enricher-default
+  job.incident-enricher.fetch: incident-enricher-fetch
+  job.incident-enricher.summarize: incident-enricher-summarize
+  job.incident-enricher.post: incident-enricher-post
 ```
 
-Workers must run with pool name `incident-enricher-default` (or your chosen pool) to receive jobs.
+Workers must heartbeat into their respective pools to receive jobs.
 
 ## `pack/overlays/timeouts.patch.yaml`
 
@@ -529,7 +533,7 @@ CORETEX_API_KEY=devkey
 NATS_URL=nats://nats:4222
 REDIS_ADDR=redis:6379
 
-WORKER_POOL=incident-enricher-default
+WORKER_POOL=incident-enricher-fetch  # overridden per-service in compose
 
 # summarizer
 LLM_PROVIDER=mock

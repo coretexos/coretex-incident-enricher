@@ -1,4 +1,4 @@
-juapackage main
+package main
 
 import (
 	"context"
@@ -138,9 +138,10 @@ func main() {
 		return buildResult(ctx, mem, cfg, req, result, start)
 	}
 
+	subject := fmt.Sprintf("worker.%s.jobs", cfg.WorkerID)
 	w := &worker.Worker{
 		NATS:     nc,
-		Subject:  "job.incident-enricher.post",
+		Subject:  subject,
 		Handler:  handler,
 		SenderID: cfg.WorkerID,
 	}
@@ -154,7 +155,7 @@ func main() {
 		return worker.HeartbeatPayload(cfg.WorkerID, cfg.WorkerPool, 0, cfg.MaxParallelJobs, 0)
 	})
 
-	log.Printf("poster listening on job.incident-enricher.post (worker_id=%s pool=%s)", cfg.WorkerID, cfg.WorkerPool)
+	log.Printf("poster listening on %s for job.incident-enricher.post (worker_id=%s pool=%s)", subject, cfg.WorkerID, cfg.WorkerPool)
 	<-ctx.Done()
 }
 

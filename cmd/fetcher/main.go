@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -64,9 +65,10 @@ func main() {
 		}, nil
 	}
 
+	subject := fmt.Sprintf("worker.%s.jobs", cfg.WorkerID)
 	w := &worker.Worker{
 		NATS:     nc,
-		Subject:  "job.incident-enricher.fetch",
+		Subject:  subject,
 		Handler:  handler,
 		SenderID: cfg.WorkerID,
 	}
@@ -80,6 +82,6 @@ func main() {
 		return worker.HeartbeatPayload(cfg.WorkerID, cfg.WorkerPool, 0, cfg.MaxParallelJobs, 0)
 	})
 
-	log.Printf("fetcher listening on job.incident-enricher.fetch (worker_id=%s pool=%s)", cfg.WorkerID, cfg.WorkerPool)
+	log.Printf("fetcher listening on %s for job.incident-enricher.fetch (worker_id=%s pool=%s)", subject, cfg.WorkerID, cfg.WorkerPool)
 	<-ctx.Done()
 }

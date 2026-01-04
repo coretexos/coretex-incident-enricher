@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -83,9 +84,10 @@ func main() {
 		}, nil
 	}
 
+	subject := fmt.Sprintf("worker.%s.jobs", cfg.WorkerID)
 	w := &worker.Worker{
 		NATS:     nc,
-		Subject:  "job.incident-enricher.summarize",
+		Subject:  subject,
 		Handler:  handler,
 		SenderID: cfg.WorkerID,
 	}
@@ -99,6 +101,6 @@ func main() {
 		return worker.HeartbeatPayload(cfg.WorkerID, cfg.WorkerPool, 0, cfg.MaxParallelJobs, 0)
 	})
 
-	log.Printf("summarizer listening on job.incident-enricher.summarize (worker_id=%s pool=%s)", cfg.WorkerID, cfg.WorkerPool)
+	log.Printf("summarizer listening on %s for job.incident-enricher.summarize (worker_id=%s pool=%s)", subject, cfg.WorkerID, cfg.WorkerPool)
 	<-ctx.Done()
 }

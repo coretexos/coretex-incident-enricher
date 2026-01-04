@@ -88,6 +88,6 @@ INGESTER_URL=http://localhost:8088 ./scripts/demo.sh
 
 - `CORETEX_GATEWAY_URL`, `CORETEX_API_KEY`
 - `NATS_URL`, `REDIS_ADDR` or `REDIS_URL`
-- `WORKER_POOL`, `WORKER_ID`, `WORKER_MAX_PARALLEL`
+- `WORKER_POOL` (per worker: `incident-enricher-fetch|summarize|post`), `WORKER_ID`, `WORKER_MAX_PARALLEL`
 - `LLM_PROVIDER` (mock), `OPENAI_API_KEY`, `OPENAI_MODEL`
 - `SLACK_WEBHOOK_URL`
