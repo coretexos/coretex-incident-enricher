@@ -104,5 +104,8 @@ INGESTER_URL=http://localhost:8088 ./scripts/demo.sh
 - `CORETEX_GATEWAY_URL`, `CORETEX_API_KEY`
 - `NATS_URL`, `REDIS_ADDR` or `REDIS_URL`
 - `WORKER_POOL` (per worker: `incident-enricher-fetch|summarize|post`), `WORKER_ID`, `WORKER_MAX_PARALLEL`
-- `LLM_PROVIDER` (mock), `OPENAI_API_KEY`, `OPENAI_MODEL`
+- `LLM_PROVIDER` (`mock` or `ollama`)
+- `OLLAMA_URL`, `OLLAMA_MODEL`, `OLLAMA_TEMPERATURE` (required for `ollama`)
+- `OPENAI_API_KEY`, `OPENAI_MODEL` (reserved; not implemented yet)
+- `LLM_MAX_INPUT_BYTES`, `LLM_MAX_EVIDENCE_BYTES`, `LLM_MAX_EVIDENCE_ITEMS`
 - `SLACK_WEBHOOK_URL`

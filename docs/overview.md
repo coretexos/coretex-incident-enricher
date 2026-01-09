@@ -32,7 +32,7 @@ Incident Enricher is a first-pack reference. It proves:
 
 ## What is intentionally minimal
 
-- LLM integration is mock by default (OpenAI stub only).
+- LLM integration is mock by default, with Ollama support (OpenAI stub only).
 - Incident fetch is mock by default (no PagerDuty integration).
 - Slack posting works via webhook, gated by policy approval.
 

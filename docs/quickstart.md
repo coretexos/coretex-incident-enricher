@@ -19,6 +19,14 @@ the safety policy fragment that requires approval for the post step.
 docker compose -f deploy/docker-compose.workers.yaml --env-file deploy/env.example up --build
 ```
 
+Optional: enable real summaries with Ollama by setting in `deploy/env.example`:
+
+```
+LLM_PROVIDER=ollama
+OLLAMA_URL=http://localhost:11434
+OLLAMA_MODEL=llama3
+```
+
 ## 3) Start a run
 
 ```

@@ -13,22 +13,29 @@ const (
 	defaultRedisAddr  = "localhost:6379"
 	defaultWorkerPool = "incident-enricher-default"
 	defaultDataTTL    = 24 * time.Hour
+	defaultOllamaURL  = "http://localhost:11434"
 )
 
 type Env struct {
-	Service         string
-	NATSURL         string
-	RedisURL        string
-	GatewayURL      string
-	APIKey          string
-	WorkerPool      string
-	WorkerID        string
-	MaxParallelJobs int
-	DataTTL         time.Duration
-	LLMProvider     string
-	OpenAIAPIKey    string
-	OpenAIModel     string
-	SlackWebhookURL string
+	Service             string
+	NATSURL             string
+	RedisURL            string
+	GatewayURL          string
+	APIKey              string
+	WorkerPool          string
+	WorkerID            string
+	MaxParallelJobs     int
+	DataTTL             time.Duration
+	LLMProvider         string
+	OpenAIAPIKey        string
+	OpenAIModel         string
+	OllamaURL           string
+	OllamaModel         string
+	OllamaTemp          float64
+	SlackWebhookURL     string
+	LLMMaxInputBytes    int
+	LLMMaxEvidenceBytes int
+	LLMMaxEvidenceItems int
 }
 
 func Load(service string) Env {
@@ -68,7 +75,13 @@ func Load(service string) Env {
 	cfg.LLMProvider = strings.TrimSpace(os.Getenv("LLM_PROVIDER"))
 	cfg.OpenAIAPIKey = strings.TrimSpace(os.Getenv("OPENAI_API_KEY"))
 	cfg.OpenAIModel = strings.TrimSpace(os.Getenv("OPENAI_MODEL"))
+	cfg.OllamaURL = getenv("OLLAMA_URL", defaultOllamaURL)
+	cfg.OllamaModel = strings.TrimSpace(os.Getenv("OLLAMA_MODEL"))
+	cfg.OllamaTemp = getenvFloat("OLLAMA_TEMPERATURE", 0.2)
 	cfg.SlackWebhookURL = strings.TrimSpace(os.Getenv("SLACK_WEBHOOK_URL"))
+	cfg.LLMMaxInputBytes = getenvInt("LLM_MAX_INPUT_BYTES", 65536)
+	cfg.LLMMaxEvidenceBytes = getenvInt("LLM_MAX_EVIDENCE_BYTES", 32768)
+	cfg.LLMMaxEvidenceItems = getenvInt("LLM_MAX_EVIDENCE_ITEMS", 4)
 
 	return cfg
 }
@@ -87,6 +100,18 @@ func getenvInt(key string, fallback int) int {
 		return fallback
 	}
 	parsed, err := strconv.Atoi(val)
+	if err != nil {
+		return fallback
+	}
+	return parsed
+}
+
+func getenvFloat(key string, fallback float64) float64 {
+	val := strings.TrimSpace(os.Getenv(key))
+	if val == "" {
+		return fallback
+	}
+	parsed, err := strconv.ParseFloat(val, 64)
 	if err != nil {
 		return fallback
 	}

@@ -7,6 +7,6 @@ import (
 	"github.com/coretexos/coretex-incident-enricher/internal/types"
 )
 
-func SummarizeOpenAI(_ context.Context, _ types.EvidenceBundle, _ string) (types.Summary, error) {
+func SummarizeOpenAI(_ context.Context, _ Settings, _ Input) (types.Summary, error) {
 	return types.Summary{}, errors.New("openai summarizer not configured")
 }

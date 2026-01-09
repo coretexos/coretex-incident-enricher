@@ -8,9 +8,9 @@ import (
 	"github.com/coretexos/coretex-incident-enricher/internal/types"
 )
 
-func SummarizeMock(input types.EvidenceBundle, redactionLevel string) types.Summary {
+func SummarizeMock(input Input, redactionLevel string) types.Summary {
 	summary := types.Summary{
-		IncidentID: input.IncidentID,
+		IncidentID: input.Bundle.IncidentID,
 		Model:      "mock",
 		Confidence: 0.4,
 	}
@@ -22,8 +22,8 @@ func SummarizeMock(input types.EvidenceBundle, redactionLevel string) types.Summ
 		summary.Model = "mock-redacted"
 		return summary
 	}
-	count := len(input.Evidence)
-	summary.SummaryMarkdown = fmt.Sprintf("Incident %s summary: collected %d evidence item(s) at %s.", input.IncidentID, count, time.Now().UTC().Format(time.RFC3339))
+	count := len(input.Bundle.Evidence)
+	summary.SummaryMarkdown = fmt.Sprintf("Incident %s summary: collected %d evidence item(s) at %s.", input.Bundle.IncidentID, count, time.Now().UTC().Format(time.RFC3339))
 	if count > 0 {
 		summary.Highlights = []string{fmt.Sprintf("%d evidence item(s) collected", count)}
 	}

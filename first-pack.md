@@ -1,4 +1,4 @@
-# Repo: `incident-enricher-pack`
+# Repo: `coretex-incident-enricher`
 
 ## Goals
 
@@ -22,7 +22,7 @@ You want a clean separation between:
 Recommended repo layout:
 
 ```
-incident-enricher-pack/
+coretex-incident-enricher/
   README.md
   Makefile
   LICENSE
@@ -58,9 +58,9 @@ incident-enricher-pack/
       artifacts.go
     incidents/
       mock.go
-      pagerduty.go               # optional
     llm/
-      openai.go                  # optional
+      ollama.go                  # real LLM via Ollama
+      openai.go                  # stub (not implemented)
       mock.go
     slack/
       webhook.go                 # optional
@@ -168,12 +168,14 @@ overlays:
   config:
     - name: pools
       scope: system
+      scope_id: default
       key: pools
       strategy: json_merge_patch
       path: overlays/pools.patch.yaml
 
     - name: timeouts
       scope: system
+      scope_id: default
       key: timeouts
       strategy: json_merge_patch
       path: overlays/timeouts.patch.yaml
@@ -385,8 +387,8 @@ It defaults to:
 
 So your fragment should:
 
-* allow fetch + summarize
-* require approval for post
+* allow all incident-enricher topics
+* require approval for post (more specific rule wins)
 
 ### `pack/overlays/policy.fragment.yaml` (recommended minimal)
 
@@ -395,28 +397,17 @@ So your fragment should:
 ```yaml
 version: 1
 default_tenant: default
-
-tenants:
-  default:
-    allow_topics:
-      - "job.incident-enricher.*"
-
 rules:
-  - id: incident-enricher-allow-fetch
-    match:
-      topic: "job.incident-enricher.fetch"
-    decision: allow
-
-  - id: incident-enricher-allow-summarize
-    match:
-      topic: "job.incident-enricher.summarize"
-    decision: allow
-
   - id: incident-enricher-require-approval-post
     match:
-      topic: "job.incident-enricher.post"
+      topics: ["job.incident-enricher.post"]
     decision: require_approval
     reason: "Posting externally requires explicit approval"
+
+  - id: incident-enricher-allow
+    match:
+      topics: ["job.incident-enricher.*"]
+    decision: allow
 ```
 
 ### Why this proves the platform
@@ -463,8 +454,8 @@ Output: `EvidenceBundle`
 
 Behavior:
 
-* If `source.system == "mock"`: treat `raw` as the incident, normalize it.
-* If `"pagerduty"` (optional): GET incident details, notes, responders.
+* Treat `raw` as the incident payload and normalize it.
+* `source.system` is currently informational only (no PagerDuty API integration yet).
 * Store:
 
   * raw payload as artifact
@@ -537,8 +528,15 @@ WORKER_POOL=incident-enricher-fetch  # overridden per-service in compose
 
 # summarizer
 LLM_PROVIDER=mock
+# OpenAI is reserved for future use (not implemented yet).
 OPENAI_API_KEY=
-OPENAI_MODEL=gpt-4o-mini
+OPENAI_MODEL=
+OLLAMA_URL=http://localhost:11434
+OLLAMA_MODEL=
+OLLAMA_TEMPERATURE=0.2
+LLM_MAX_INPUT_BYTES=65536
+LLM_MAX_EVIDENCE_BYTES=32768
+LLM_MAX_EVIDENCE_ITEMS=4
 
 # poster
 SLACK_WEBHOOK_URL=
